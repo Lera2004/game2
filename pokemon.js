@@ -1,17 +1,34 @@
 // pokemon.js
 export class Pokemon {
-  constructor(name, health, $hpElement, $progressbar) {
+  constructor(name, health, $hpElement, $progressbar, attacks) {
     this.name = name;
     this.defaultHealth = health;
     this.damageHP = health;
     this.$hpElement = $hpElement;
     this.$progressbar = $progressbar;
+    this.attacks = attacks;
+  }
+
+  getAttackDetails(index) {
+    return this.attacks[index];
   }
 
   init() {
     this.renderHP();
   }
+  resetHealth() {
+    this.damageHP = this.originalHP;
+    if (this.$healthElement) {
+      this.$healthElement.innerText = this.damageHP;
+    }
+    if (this.$progressbarElement) {
+      this.$progressbarElement.style.width = '100%';
+    }
 
+    if (this.clickCounter) {
+      this.clickCounter.reset();
+    }
+  }
 renderHP() {
     this.$hpElement.innerText = this.damageHP + ' / ' + this.defaultHealth;
     this.$progressbar.style.width = (this.damageHP / this.defaultHealth) * 100 + '%';

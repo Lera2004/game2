@@ -13,22 +13,26 @@ class Game {
     this.$btn6 = document.getElementById("btn-kick6");
     this.$btn7 = document.getElementById("btn-kick7");
 
-    this.remainingClicks = 80;
+    this.remainingClicks = 224;
     this.$btnRestart = document.getElementById("btn-restart");
     this.$logs = document.getElementById("logs");
     
 
     this.player1 = new Pokemon("Pikachu", 274, document.getElementById("health-player1"), document.getElementById("progressbar-player1"));
-    this.player2 = new Pokemon("Charmander", 282, document.getElementById("health-player2"), document.getElementById("progressbar-player2"));
+    this.player1.clickCounter = this.setMaxClicksForBtn;
 
-    this.setMaxClicksForBtn = createClickCounter(this.$btn, 10);
-    this.setMaxClicksForBtn1 = createClickCounter(this.$btn1, 10);
-    this.setMaxClicksForBtn2 = createClickCounter(this.$btn2, 10);
-    this.setMaxClicksForBtn4 = createClickCounter(this.$btn4, 10);
-    this.setMaxClicksForBtn6 = createClickCounter(this.$btn6, 10);
-    this.setMaxClicksForBtn3 = createClickCounter(this.$btn3, 10);
-    this.setMaxClicksForBtn5 = createClickCounter(this.$btn5, 10);
-    this.setMaxClicksForBtn7 = createClickCounter(this.$btn7, 10);
+    this.player2 = new Pokemon("Charmander", 282, document.getElementById("health-player2"), document.getElementById("progressbar-player2"));
+    this.player2.clickCounter = this.setMaxClicksForBtn1;
+
+
+    this.setMaxClicksForBtn = createClickCounter(this.$btn, 6);
+    this.setMaxClicksForBtn1 = createClickCounter(this.$btn1, 6);
+    this.setMaxClicksForBtn2 = createClickCounter(this.$btn2, 100);
+    this.setMaxClicksForBtn4 = createClickCounter(this.$btn4, 4);
+    this.setMaxClicksForBtn6 = createClickCounter(this.$btn6, 2);
+    this.setMaxClicksForBtn3 = createClickCounter(this.$btn3, 100);
+    this.setMaxClicksForBtn5 = createClickCounter(this.$btn5, 4);
+    this.setMaxClicksForBtn7 = createClickCounter(this.$btn7, 2);
 
     this.$btn1.addEventListener("click", () => this.fireAttack());
     this.$btn3.addEventListener("click", () => this.fireAttack3());
@@ -79,9 +83,7 @@ class Game {
     this.setMaxClicksForBtn6.reset();
     this.setMaxClicksForBtn7.reset();
 
-
-    // Обнуляем счетчик нажатий
-    this.remainingClicks = 80;
+    this.remainingClicks = 224;
   }
 
   startGame() {
@@ -105,6 +107,7 @@ class Game {
     this.$btn6.style.display = 'inline-block';
     this.$btn7.style.display = 'inline-block';
     
+    this.updateAttackButtons(this.player1, this.player2);
   }
 
   endGame() {
@@ -155,36 +158,68 @@ class Game {
   createRandomEnemy() {
     const randomIndexPlayer1 = Math.floor(Math.random() * pokemons.length);
     const randomEnemyDataPlayer1 = pokemons[randomIndexPlayer1];
-
+    
     const randomIndexPlayer2 = Math.floor(Math.random() * pokemons.length);
     const randomEnemyDataPlayer2 = pokemons[randomIndexPlayer2];
-
+    
+    const attacksPlayer1 = randomEnemyDataPlayer1.attacks;
+    const attacksPlayer2 = randomEnemyDataPlayer2.attacks;
+  
     if (this.player1.isDefeated()) {
       this.player1 = new Pokemon(
         randomEnemyDataPlayer1.name,
         randomEnemyDataPlayer1.hp,
         document.getElementById("health-player1"),
-        document.getElementById("progressbar-player1")
+        document.getElementById("progressbar-player1"),
+        attacksPlayer1
       );
       document.getElementById("name-player1").innerText = this.player1.name;
       this.player1.init();
       const player1Image = document.querySelector(".pokemon.player1 .sprite");
       player1Image.src = randomEnemyDataPlayer1.img;
     }
-
+  
     if (this.player2.isDefeated()) {
       this.player2 = new Pokemon(
         randomEnemyDataPlayer2.name,
         randomEnemyDataPlayer2.hp,
         document.getElementById("health-player2"),
-        document.getElementById("progressbar-player2")
+        document.getElementById("progressbar-player2"),
+        attacksPlayer2
       );
       document.getElementById("name-player2").innerText = this.player2.name;
       this.player2.init();
       const player2Image = document.querySelector(".pokemon.player2 .sprite");
       player2Image.src = randomEnemyDataPlayer2.img;
     }
+  
+    this.updateAttackButtons(this.player1, this.player2);
   }
+  
+  
+updateAttackButtons(player1, player2) {
+  const buttonIdsPlayer1 = ['btn-kick', 'btn-kick2', 'btn-kick4', 'btn-kick6'];
+  const buttonIdsPlayer2 = ['btn-kick3', 'btn-kick1', 'btn-kick5', 'btn-kick7'];
+
+  if (player1.attacks) {
+    buttonIdsPlayer1.forEach((buttonId, index) => {
+      const $btn = document.getElementById(buttonId);
+      if ($btn && player1.attacks[index]) {
+        $btn.innerText = `${player1.attacks[index].name}`;
+      }
+    });
+  }
+
+  if (player2.attacks) {
+    buttonIdsPlayer2.forEach((buttonId, index) => {
+      const $btn = document.getElementById(buttonId);
+      if ($btn && player2.attacks[index]) {
+        $btn.innerText = `${player2.attacks[index].name}`;
+      }
+    });
+  }
+}
+
 
   kick() {
     console.log("Kick");
